@@ -1,0 +1,7 @@
+[Unit]
+Description=Download last xkcd picture
+
+[Service]
+Type=simple
+User=mc
+ExecStart=/home/mc/sh_script/get_image.sh
