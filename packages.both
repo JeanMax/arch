@@ -2,7 +2,6 @@ acpi
 alsa-utils
 arc-gtk-theme
 arch-install-scripts
-atom
 autoconf
 automake
 b43-fwcutter
@@ -11,14 +10,17 @@ beep
 binutils
 bison
 btrfs-progs
+bzip2
 cantarell-fonts
-chromium
 clang
 clonezilla
 colorgcc
 conky
 crda
+cmake
+ctags
 darkhttpd
+dconf-editor
 ddrescue
 devtools
 dhclient
@@ -27,6 +29,7 @@ dmraid
 dnsmasq
 dnsutils
 dosfstools
+dwdiff
 emacs
 ethtool
 exfat-utils
@@ -47,6 +50,7 @@ gpicview
 gpm
 gpointing-device-settings
 gptfdisk
+grc
 groff
 grub
 gsimplecal
@@ -55,6 +59,7 @@ i3
 i3lock
 i3status
 i3-wm
+imagemagick
 intel-ucode
 intltool
 ipw2100-fw
@@ -76,10 +81,10 @@ lm_sensors
 lsof
 lsscsi
 lxappearance
-lxterminal
 lynx
 m4
 make
+mate-terminal
 mc
 mesa
 mlocate
@@ -96,6 +101,7 @@ openconnect
 openssh
 openvpn
 os-prober
+pavucontrol
 pandoc
 partclone
 parted
@@ -124,7 +130,9 @@ sudo
 sysstat
 tcpdump
 testdisk
+traceroute
 transmission-gtk
+ttf-symbola
 udisks2
 unzip
 usb_modeswitch

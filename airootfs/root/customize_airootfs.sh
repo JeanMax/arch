@@ -1,12 +1,12 @@
 #!/bin/bash
 
-set -e -u
+set -e -u -x
 
 sed -i 's/#\(en_US\.UTF-8\)/\1/' /etc/locale.gen
 locale-gen
 
 usermod -s /usr/bin/zsh root
-cp -aT /etc/skel/ /root/
+cp -aT /etc/skel/ /root/ || true
 chmod 700 /root
 
 sed -i 's/#\(PermitRootLogin \).\+/\1yes/' /etc/ssh/sshd_config
@@ -35,6 +35,26 @@ hwclock --systohc
 
 sed -i 's/#\(Color\)/\1/' /etc/pacman.conf
 
+
+unlink /etc/fonts/conf.d/10-autohint.conf || true
+unlink /etc/fonts/conf.d/10-hinting-none.conf || true
+unlink /etc/fonts/conf.d/10-hinting-slight.conf || true
+unlink /etc/fonts/conf.d/10-hinting-medium.conf || true
+unlink /etc/fonts/conf.d/10-hinting-full.conf || true
+ln -sv /etc/fonts/conf.{avail,d}/10-hinting-none.conf
+
+unlink /etc/fonts/conf.d/10-no-sub-pixel.conf || true
+unlink /etc/fonts/conf.d/10-sub-pixel-bgr.conf || true
+unlink /etc/fonts/conf.d/10-sub-pixel-rgb.conf || true
+unlink /etc/fonts/conf.d/10-sub-pixel-vbgr.conf || true
+unlink /etc/fonts/conf.d/10-sub-pixel-vrgb.conf || true
+ln -sv /etc/fonts/conf.{avail,d}/10-sub-pixel-rgb.conf
+
+unlink /etc/fonts/conf.d/11-lcdfilter-default.conf || true
+unlink /etc/fonts/conf.d/11-lcdfilter-light.conf || true
+unlink /etc/fonts/conf.d/11-lcdfilter-legacy.conf || true
+ln -sv /etc/fonts/conf.{avail,d}/11-lcdfilter-light.conf
+
 NEW_USER=mc
 if [ ! "$(id $NEW_USER)" ]; then
     cd /usr/share/fonts/100dpi/ && mkfontdir && cd -
@@ -49,6 +69,12 @@ if [ ! "$(id $NEW_USER)" ]; then
     /root/config-files/install.sh --no-private
     su $NEW_USER -c "/home/$NEW_USER/config-files/install.sh --no-private"
 
+	rm -rf /root/config-files
+	ln -sv /home/$NEW_USER/config-files /root/config-files
+
+	emacs -nw --kill || true
+	chown -R $NEW_USER:users /home/$NEW_USER/config-files
+
     rm -rf /{etc/skel,root}/.mozilla
 fi
 
@@ -61,11 +87,17 @@ yaourt -Sy --devel --aur
 # gpg --recv-keys --keyserver hkp://pgp.mit.edu 1EB2638FF56C0C53 #cower
 
 AUR_PKG="aic94xx-firmware
-fontconfig-enhanced-defaults
+colormake
 i3blocks
+idutils
+global
 neofetch
 playerctl
+multimarkdown
+peda
 rxvt-unicode-fontspacing-noinc-vteclear-secondarywheel
+sloccount
+ttf-monaco
 urxvt-resize-font-git
 urxvt-tabbedex-git
 wd719x-firmware
