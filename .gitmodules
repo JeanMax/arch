@@ -1,0 +1,3 @@
+[submodule "airootfs/etc/skel/config-files"]
+	path = airootfs/etc/skel/config-files
+	url = https://github.com/jeanmax/config-files

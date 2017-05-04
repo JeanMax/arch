@@ -1,0 +1,12 @@
+[Unit]
+Description=Runs xkcd.service every hour
+Requires=network.target
+After=network.target
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=1h
+Unit=xkcd.service
+
+[Install]
+WantedBy=timers.target
