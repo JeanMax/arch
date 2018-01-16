@@ -1,3 +1,4 @@
+chromium
 acpi
 alsa-utils
 arc-gtk-theme
@@ -38,6 +39,7 @@ fakeroot
 feh
 firefox
 flex
+flashplugin
 fsarchiver
 gcc
 gdb
@@ -62,6 +64,7 @@ i3-wm
 imagemagick
 intel-ucode
 intltool
+ipython
 ipw2100-fw
 ipw2200-fw
 irssi
@@ -124,6 +127,7 @@ ruby
 scrot
 sdparm
 sg3_utils
+shellcheck
 smartmontools
 speedtouch
 sudo
