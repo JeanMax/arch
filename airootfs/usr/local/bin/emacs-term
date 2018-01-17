@@ -1,0 +1,3 @@
+#!/bin/sh
+
+mate-terminal -x zsh -i -c "emacsclient -t "$@"; zsh"
