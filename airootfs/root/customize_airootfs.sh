@@ -21,8 +21,6 @@ systemctl enable pacman-init.service choose-mirror.service xkcd.service
 # systemctl set-default multi-user.target
 systemctl set-default graphical.target
 
-# echo "KEYMAP=fr-latin1" > /etc/vconsole.conf
-
 # ln -sf /usr/share/zoneinfo/UTC /etc/localtime
 test -e /etc/localtime && unlink /etc/localtime
 ln -s /usr/share/zoneinfo/Europe/Paris /etc/localtime
@@ -69,13 +67,19 @@ if [ ! "$(id $NEW_USER)" ]; then
     /root/config-files/install.sh --no-private
     su $NEW_USER -c "/home/$NEW_USER/config-files/install.sh --no-private"
 
-	rm -rf /root/config-files
+	rm -rf /{etc/skel,root}/{config-files,.mozilla}
 	ln -sv /home/$NEW_USER/config-files /root/config-files
 
-	emacs -nw --kill || true
-	chown -R $NEW_USER:users /home/$NEW_USER/config-files
+    if ! [ -d /home/$NEW_USER/config-files/.git ]; then
+        rm /home/$NEW_USER/config-files/.git
+        tmp=/tmp/config-files
+        git clone https://github.com/jeanmax/config-files $tmp
+        mv $tmp/.git /home/$NEW_USER/config-files/.git
+        rm -rf $tmp
+    fi
 
-    rm -rf /{etc/skel,root}/.mozilla
+	emacs --daemon
+	chown -R $NEW_USER:users /home/$NEW_USER/config-files
 fi
 
 sed -i 's/^\(%wheel ALL=(ALL) ALL\)/# \1/' /etc/sudoers
@@ -83,20 +87,25 @@ sed -i 's/# \(%wheel ALL=(ALL) NOPASSWD: ALL\)/\1/' /etc/sudoers
 
 pacman-key --init
 pacman-key --populate archlinux
+# su $NEW_USER -c "gpg --recv-keys --keyserver hkp://pgp.mit.edu 1EB2638FF56C0C53"  # cower
+su $NEW_USER -c "gpg --keyserver hkp://pgp.mit.edu:11371 --recv-keys D1483FA6C3C07136"  # tor-browser
 yaourt -Sy --devel --aur
-# gpg --recv-keys --keyserver hkp://pgp.mit.edu 1EB2638FF56C0C53 #cower
 
 AUR_PKG="aic94xx-firmware
 colormake
+ggtags
+global
+grc
 i3blocks
 idutils
-global
-neofetch
-playerctl
+ledger
 multimarkdown
+neofetch
 peda
+playerctl
 rxvt-unicode-fontspacing-noinc-vteclear-secondarywheel
 sloccount
+tor-browser
 ttf-monaco
 urxvt-resize-font-git
 urxvt-tabbedex-git
@@ -105,7 +114,7 @@ zsh-autosuggestions"
 # roswell
 
 for p in $AUR_PKG; do
-    su $NEW_USER -c "yaourt --noconfirm -S $p" #yolo
+    su $NEW_USER -c "yaourt --noconfirm --needed -S $p" #yolo
 done
 su $NEW_USER -c "gem install oauth2"
 # su $NEW_USER -c "ros install"
@@ -115,9 +124,11 @@ su $NEW_USER -c "gem install oauth2"
 # su $NEW_USER -c "ros install woo"
 # su $NEW_USER -c "ros install slime"
 
+# libtool --finish /usr/lib/gtags
+
 sed -i 's/# \(%wheel ALL=(ALL) ALL\)/\1/' /etc/sudoers
 sed -i 's/^\(%wheel ALL=(ALL) NOPASSWD: ALL\)/# \1/' /etc/sudoers
 
+yes y | pacman -Scc
+rm -vf /var/cache/pacman/pkg/*
 updatedb
-
-# zsh
