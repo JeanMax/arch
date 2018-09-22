@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e -u
+set -e -u -x
 
 iso_name=pingulinux
 iso_label="PINGU_$(date +%Y%m)"
@@ -53,6 +53,11 @@ make_pacman_conf() {
 
 # Base installation, plus needed packages (airootfs)
 make_basefs() {
+    # if test ${arch} == "i686"; then
+    #     mkdir -p ${work_dir}/${arch}/airootfs
+    #     setarch ${arch} mkarchiso ${verbose} -w "${work_dir}/${arch}" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "archlinux32-keyring-transition" install
+    #     setarch ${arch} mkarchiso ${verbose} -w "${work_dir}/${arch}" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "archlinux32-keyring" install
+    # fi
     setarch ${arch} mkarchiso ${verbose} -w "${work_dir}/${arch}" -C "${work_dir}/pacman.conf" -D "${install_dir}" init
     setarch ${arch} mkarchiso ${verbose} -w "${work_dir}/${arch}" -C "${work_dir}/pacman.conf" -D "${install_dir}" -p "haveged intel-ucode memtest86+ mkinitcpio-nfs-utils nbd zsh" install
 }
@@ -95,7 +100,7 @@ make_setup_mkinitcpio() {
 make_customize_airootfs() {
     cp -af ${script_path}/airootfs ${work_dir}/${arch}
 
-    curl -o ${work_dir}/${arch}/airootfs/etc/pacman.d/mirrorlist 'https://www.archlinux.org/mirrorlist/?country=all&protocol=http&use_mirror_status=on'
+    # curl -o ${work_dir}/${arch}/airootfs/etc/pacman.d/mirrorlist 'https://www.archlinux.org/mirrorlist/?country=all&protocol=http&use_mirror_status=on'
 
     lynx -dump -nolist 'https://wiki.archlinux.org/index.php/Installation_Guide?action=render' >> ${work_dir}/${arch}/airootfs/root/install.txt
 
@@ -213,8 +218,19 @@ make_prepare() {
 
 # Build ISO
 make_iso() {
-    mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -o "${out_dir}" iso "${iso_name}-${iso_version}-x86_64.iso"
+    mkarchiso ${verbose} -w "${work_dir}" -D "${install_dir}" -L "${iso_label}" -o "${out_dir}" iso "${iso_name}-${iso_version}-dual.iso"
 }
+
+# get mirrorlist for i686
+make_mirrorlists() {
+    url='https://raw.githubusercontent.com/archlinux32/packages/master/core/pacman-mirrorlist/mirrorlist'
+    tmp=/tmp/mirrorlist.i686
+
+    curl --silent $url  | sed -E 's/#*(Server)/\1/g' > $tmp
+    rankmirrors $tmp | grep Server > ${script_path}/mirrorlist.i686
+    cp /etc/pacman.d/mirrorlist ${script_path}/mirrorlist.x86_64
+}
+
 
 if [[ ${EUID} -ne 0 ]]; then
     echo "This script must be run as root."
@@ -246,22 +262,30 @@ done
 
 mkdir -p ${work_dir}
 
+# avoid reinstalling packages
+# https://wiki.archlinux.org/index.php/Archiso#Rebuild_the_ISO
+sed -i 's/pacman -r/pacman --needed -r/' /bin/pacstrap
+
 run_once make_pacman_conf
+run_once make_mirrorlists
 
 # Do all stuff for each airootfs
-for arch in x86_64; do
+for arch in i686 x86_64; do
+    cp -v ${script_path}/mirrorlist.$arch /etc/pacman.d/mirrorlist
     run_once make_basefs
     run_once make_packages
 done
 
 run_once make_packages_efi
 
-for arch in x86_64; do
+for arch in i686 x86_64; do
+    cp -v ${script_path}/mirrorlist.$arch /etc/pacman.d/mirrorlist
+    cp -v ${script_path}/mirrorlist.$arch ${work_dir}/$arch/airootfs/etc/pacman.d/mirrorlist
     run_once make_setup_mkinitcpio
     run_once make_customize_airootfs
 done
 
-for arch in x86_64; do
+for arch in i686 x86_64; do
     run_once make_boot
 done
 
@@ -272,8 +296,11 @@ run_once make_isolinux
 run_once make_efi
 run_once make_efiboot
 
-for arch in x86_64; do
+for arch in i686 x86_64; do
     run_once make_prepare
 done
 
 run_once make_iso
+
+# TODO: not sure it even worth reverting
+sed -i 's/pacman --needed -r/pacman -r/' /bin/pacstrap

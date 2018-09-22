@@ -48,6 +48,7 @@ gcc
 gdb
 gimp
 git
+gksu
 gnome-calculator
 gnu-netcat
 gpa
@@ -60,7 +61,7 @@ grub
 gsimplecal
 hdf5
 hdparm
-i3
+i3blocks
 i3lock
 i3status
 i3-wm
@@ -105,6 +106,7 @@ nilfs-utils
 nmap
 ntfs-3g
 ntp
+numlockx
 ocaml
 opam
 openconnect
@@ -128,7 +130,9 @@ python-matplotlib
 python-pandas
 python-pip
 python-pylint
+qemu-guest-agent
 qt4
+qt5-styleplugins
 refind-efi
 rfkill
 rlwrap
@@ -136,6 +140,7 @@ rofi
 rp-pppoe
 rsync
 ruby
+ruby-rdoc
 scrot
 sdparm
 sg3_utils
@@ -195,7 +200,6 @@ xorg-xinit
 xorg-xwininfo
 xpdf
 xsel
-yaourt
 zd1211-firmware
 zip
 zsh-completions
